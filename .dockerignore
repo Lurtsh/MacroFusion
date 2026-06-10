@@ -1,0 +1,8 @@
+.git
+build
+cmake-build-*
+data
+*.ncu-rep
+*.nsys-rep
+*.qdrep
+*.sqlite

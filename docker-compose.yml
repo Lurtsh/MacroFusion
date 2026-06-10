@@ -1,0 +1,29 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: macrofusion:cuda13.3
+    working_dir: /workspace/MacroFusion
+    environment:
+      XDG_SESSION_TYPE: ${XDG_SESSION_TYPE:-}
+    volumes:
+      - .:/workspace/MacroFusion
+    tty: true
+    stdin_open: true
+
+  dev-gpu:
+    profiles:
+      - gpu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: macrofusion:cuda13.3
+    working_dir: /workspace/MacroFusion
+    environment:
+      XDG_SESSION_TYPE: ${XDG_SESSION_TYPE:-}
+    volumes:
+      - .:/workspace/MacroFusion
+    gpus: all
+    tty: true
+    stdin_open: true
