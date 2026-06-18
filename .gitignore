@@ -1,11 +1,16 @@
+# Build systems
 build/
 cmake-build-*/
 CMakeFiles/
 CMakeCache.txt
+cmake_install.cmake
+Makefile
 compile_commands.json
+CTestTestfile.cmake
 Testing/
 _deps/
 
+# C++ / CUDA artifacts
 *.o
 *.obj
 *.a
@@ -13,24 +18,91 @@ _deps/
 *.dylib
 *.dll
 *.exe
+*.out
+*.lib
+*.pdb
+*.ilk
+*.exp
 *.ptx
 *.cubin
 *.fatbin
+*.sass
+*.cu.o
+*.cuda
 
+# Profiling and GPU tooling
 *.ncu-rep
 *.nsys-rep
+*.nsys-rep.qdstrm
 *.qdrep
 *.sqlite
+*.nvprof
+*.nvvp
 
+# LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.xdv
+
+# Local datasets and generated output
 data/*
+!data/.gitkeep
+!data/README.md
 !data/small_samples/
 !data/small_samples/**
 
+# Local review artifacts
+diff.txt
+*.patch
+imgui.ini
+
+# Local public export dry runs
+public_export/
+export_public/
+dist_public/
+
+# Python helper caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Notebook local state
+.ipynb_checkpoints/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets and local environment
 .env
 .env.*
 *.pem
 *.key
-.vscode/
-.idea/
-__pycache__/
-.DS_Store
+*.crt
+secrets/

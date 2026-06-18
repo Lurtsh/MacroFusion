@@ -10,12 +10,15 @@ FetchContent_MakeAvailable(googletest)
 include(GoogleTest)
 
 add_executable(macrofusion_tests
-    smoke_test.cpp
+    frame_source_test.cpp
+    preprocess_test.cpp
+    render_test.cpp
 )
 
 target_link_libraries(macrofusion_tests
     PRIVATE
         GTest::gtest_main
+        macro_fusion
 )
 
 gtest_discover_tests(macrofusion_tests)

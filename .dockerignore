@@ -1,7 +1,14 @@
 .git
+.github
+.agents
+.codex
 build
 cmake-build-*
+external
 data
+public_export
+export_public
+dist_public
 *.ncu-rep
 *.nsys-rep
 *.qdrep

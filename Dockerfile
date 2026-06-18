@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     git \
     libgl1-mesa-dev \
+    libgl1-mesa-dri \
+    libglx-mesa0 \
     libglu1-mesa-dev \
     libwayland-bin \
     libwayland-dev \
@@ -17,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxi-dev \
     libxinerama-dev \
     libxrandr-dev \
+    mesa-utils \
     ninja-build \
     pkg-config \
     python3 \

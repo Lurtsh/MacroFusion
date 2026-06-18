@@ -148,24 +148,41 @@ target_include_directories(imgui SYSTEM PUBLIC
 )
 target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 
+add_library(macro_fusion STATIC
+    src/cuda/frame_constants.cu
+    src/modules/preprocess.cpp
+    src/modules/render.cpp
+    src/modules/tum_frame_source.cpp
+)
+
+target_include_directories(macro_fusion
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
+)
+
+target_include_directories(macro_fusion SYSTEM PUBLIC
+    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+)
+
+set_target_properties(macro_fusion PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+)
+
+target_link_libraries(macro_fusion
+    PRIVATE
+        stb::headers
+)
+
 add_executable(macrofusion
     src/main.cpp
 )
 
-target_include_directories(macrofusion
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/include
-)
-
 target_link_libraries(macrofusion
     PRIVATE
-        Eigen3::Eigen
-        glog::glog
-        glfw
+        macro_fusion
         glad::gl
+        glog::glog
         imgui::imgui
-        nlohmann_json::nlohmann_json
-        stb::headers
 )
 
 if(MACROFUSION_BUILD_TESTS)
