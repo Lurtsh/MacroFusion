@@ -7,36 +7,19 @@ services:
     working_dir: /workspace/MacroFusion
     environment:
       DISPLAY: ${DISPLAY:-:0}
-      LIBGL_ALWAYS_SOFTWARE: ${LIBGL_ALWAYS_SOFTWARE:-0}
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics,display
+      NVIDIA_VISIBLE_DEVICES: all
+      __GLX_VENDOR_LIBRARY_NAME: nvidia
       XAUTHORITY: /tmp/.docker.xauth
       XDG_SESSION_TYPE: x11
     volumes:
       - .:/workspace/MacroFusion
+      - macrofusion-build:/workspace/MacroFusion/build
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTHORITY:-${HOME}/.Xauthority}:/tmp/.docker.xauth:ro
-    devices:
-      - /dev/dri:/dev/dri
-    tty: true
-    stdin_open: true
-
-  dev-gpu:
-    profiles:
-      - gpu
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: macrofusion:cuda13.3
-    working_dir: /workspace/MacroFusion
-    environment:
-      DISPLAY: ${DISPLAY:-:0}
-      XAUTHORITY: /tmp/.docker.xauth
-      XDG_SESSION_TYPE: x11
-    volumes:
-      - .:/workspace/MacroFusion
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ${XAUTHORITY:-${HOME}/.Xauthority}:/tmp/.docker.xauth:ro
-    devices:
-      - /dev/dri:/dev/dri
     gpus: all
     tty: true
     stdin_open: true
+
+volumes:
+  macrofusion-build:

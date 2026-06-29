@@ -1,7 +1,7 @@
 /// @file
 /// @brief Defines frame geometry stored in CUDA constant memory.
 
-#include "macro_fusion/cuda/frame_constants.cuh"
+#include "core/frame_constants.cuh"
 
 #include <cuda_runtime.h>
 

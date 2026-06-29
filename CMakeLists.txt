@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 
-set(CMAKE_CUDA_ARCHITECTURES "75;86;89;90" CACHE STRING
-    "CUDA architectures to build without requiring a GPU during configure")
+set(CMAKE_CUDA_ARCHITECTURES "75;86;89;120" CACHE STRING
+    "CUDA architectures targeted by MacroFusion")
 
 project(MacroFusion
     VERSION 0.1.0
@@ -10,7 +10,14 @@ project(MacroFusion
 
 include(FetchContent)
 
-find_package(OpenGL REQUIRED)
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(CUDAToolkit REQUIRED)
+find_package(OpenGL REQUIRED COMPONENTS OpenGL GLX)
+find_package(TBB REQUIRED)
+
+if(NOT TARGET OpenGL::OpenGL OR NOT TARGET OpenGL::GLX)
+    message(FATAL_ERROR "MacroFusion requires GLVND libOpenGL and libGLX")
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,9 +29,6 @@ set(CMAKE_CUDA_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(MACROFUSION_BUILD_TESTS "Build MacroFusion tests" ON)
-set(MACROFUSION_GLFW_LINUX_BACKEND "AUTO" CACHE STRING
-    "GLFW Linux backend: AUTO, X11, or WAYLAND")
-set_property(CACHE MACROFUSION_GLFW_LINUX_BACKEND PROPERTY STRINGS AUTO X11 WAYLAND)
 
 set(BUILD_TESTING OFF CACHE BOOL "Disable dependency test targets" FORCE)
 
@@ -32,12 +36,6 @@ FetchContent_Declare(
     eigen
     GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
     GIT_TAG 5.0.0
-)
-
-FetchContent_Declare(
-    gflags
-    GIT_REPOSITORY https://github.com/gflags/gflags.git
-    GIT_TAG v2.2.2
 )
 
 set(WITH_GFLAGS OFF CACHE BOOL "" FORCE)
@@ -84,45 +82,10 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
 
-if(UNIX AND NOT APPLE)
-    string(TOUPPER "${MACROFUSION_GLFW_LINUX_BACKEND}" _glfw_linux_backend)
-    if(_glfw_linux_backend STREQUAL "AUTO")
-        if(DEFINED ENV{XDG_SESSION_TYPE})
-            string(TOUPPER "$ENV{XDG_SESSION_TYPE}" _session_type)
-        else()
-            set(_session_type "")
-        endif()
-
-        if(_session_type STREQUAL "WAYLAND")
-            set(_glfw_linux_backend "WAYLAND")
-        else()
-            set(_glfw_linux_backend "X11")
-        endif()
-    endif()
-
-    if(_glfw_linux_backend STREQUAL "WAYLAND")
-        find_program(WAYLAND_SCANNER_EXECUTABLE wayland-scanner)
-        if(NOT WAYLAND_SCANNER_EXECUTABLE)
-            message(WARNING "Wayland session requested, but wayland-scanner was not found. Falling back to GLFW X11.")
-            set(_glfw_linux_backend "X11")
-        endif()
-    endif()
-
-    if(_glfw_linux_backend STREQUAL "WAYLAND")
-        set(GLFW_BUILD_WAYLAND ON CACHE BOOL "" FORCE)
-        set(GLFW_BUILD_X11 OFF CACHE BOOL "" FORCE)
-    elseif(_glfw_linux_backend STREQUAL "X11")
-        set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
-        set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
-    else()
-        message(FATAL_ERROR "MACROFUSION_GLFW_LINUX_BACKEND must be AUTO, X11, or WAYLAND")
-    endif()
-
-    message(STATUS "GLFW Linux backend: ${_glfw_linux_backend}")
-endif()
-
-FetchContent_MakeAvailable(eigen gflags glog glfw nlohmann_json stb imgui glad)
+FetchContent_MakeAvailable(eigen glog glfw nlohmann_json stb imgui glad)
 
 add_library(stb_headers INTERFACE)
 add_library(stb::headers ALIAS stb_headers)
@@ -146,12 +109,23 @@ target_include_directories(imgui SYSTEM PUBLIC
     "${imgui_SOURCE_DIR}"
     "${imgui_SOURCE_DIR}/backends"
 )
-target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
+target_compile_definitions(imgui PUBLIC
+    GLFW_INCLUDE_NONE
+    IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+)
+target_compile_options(imgui PRIVATE "SHELL:-include glad/gl.h")
+target_link_libraries(imgui PUBLIC glfw glad::gl OpenGL::OpenGL OpenGL::GLX)
 
 add_library(macro_fusion STATIC
-    src/cuda/frame_constants.cu
+    src/modules/pipeline.cu
+    src/core/frame_constants.cu
+    src/modules/integration.cu
+    src/modules/macro_cells.cpp
     src/modules/preprocess.cpp
+    src/modules/raycast.cu
+    src/modules/preprocess_cuda.cu
     src/modules/render.cpp
+    src/modules/render_cuda.cu
     src/modules/tum_frame_source.cpp
 )
 
@@ -169,11 +143,15 @@ set_target_properties(macro_fusion PROPERTIES
 )
 
 target_link_libraries(macro_fusion
+    PUBLIC
+        Eigen3::Eigen
+        TBB::tbb
     PRIVATE
         stb::headers
 )
 
 add_executable(macrofusion
+    src/core/viewer.cpp
     src/main.cpp
 )
 
@@ -181,11 +159,13 @@ target_link_libraries(macrofusion
     PRIVATE
         macro_fusion
         glad::gl
+        CUDA::cudart
         glog::glog
         imgui::imgui
 )
 
-if(MACROFUSION_BUILD_TESTS)
+if(MACROFUSION_BUILD_TESTS
+        AND EXISTS "${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt")
     enable_testing()
     add_subdirectory(tests)
 endif()

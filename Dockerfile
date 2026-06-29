@@ -6,25 +6,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     cmake \
+    curl \
     git \
-    libgl1-mesa-dev \
-    libgl1-mesa-dri \
-    libglx-mesa0 \
-    libglu1-mesa-dev \
-    libwayland-bin \
-    libwayland-dev \
-    libxkbcommon-dev \
+    libglvnd-dev \
+    libglx-dev \
+    libopengl-dev \
+    libtbb-dev \
     libx11-dev \
     libxcursor-dev \
     libxi-dev \
     libxinerama-dev \
     libxrandr-dev \
-    mesa-utils \
+    libxext-dev \
+    libxrender-dev \
+    libxfixes-dev \
+    libxxf86vm-dev \
     ninja-build \
     pkg-config \
     python3 \
     python3-jinja2 \
-    wayland-protocols \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git config --system --add safe.directory /workspace/MacroFusion \

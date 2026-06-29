@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-#include "macro_fusion/core/math_types.h"
+#include "core/math_types.cuh"
 
 namespace macro_fusion {
 

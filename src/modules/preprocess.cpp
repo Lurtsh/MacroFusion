@@ -1,7 +1,7 @@
 /// @file
 /// @brief Provides host preprocessing operation definitions.
 
-#include "macro_fusion/modules/preprocess.h"
+#include "modules/preprocess.h"
 
 #include <algorithm>
 #include <cmath>

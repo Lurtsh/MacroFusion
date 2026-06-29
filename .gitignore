@@ -9,6 +9,7 @@ compile_commands.json
 CTestTestfile.cmake
 Testing/
 _deps/
+.local/
 
 # C++ / CUDA artifacts
 *.o

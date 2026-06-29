@@ -9,8 +9,8 @@
 #include <tuple>
 #include <vector>
 
-#include "macro_fusion/core/config.h"
-#include "macro_fusion/core/math_types.h"
+#include "core/config.h"
+#include "core/math_types.cuh"
 
 namespace macro_fusion {
 

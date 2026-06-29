@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "macro_fusion/core/math_types.h"
+#include "core/math_types.cuh"
 
 namespace macro_fusion {
 
@@ -14,8 +14,6 @@ namespace macro_fusion {
 /// @param[in] image_extent Width and height represented by `rgb`.
 /// @param[in] rgb Row-major RGB pixels.
 /// @param[out] rgba Non-null storage resized and overwritten with RGBA pixels.
-/// @throws std::invalid_argument If the output pointer, extent, or input
-///     storage does not satisfy the render-conversion contract.
 void RenderRgbToRgba(uint2 image_extent, const std::vector<uchar3>& rgb,
                      std::vector<uchar4>* rgba);
 
@@ -26,8 +24,6 @@ void RenderRgbToRgba(uint2 image_extent, const std::vector<uchar3>& rgb,
 /// @param[in] depth_max_meters Depth mapped to white.
 /// @param[in] depth Row-major metric depth with zero denoting invalid samples.
 /// @param[out] rgba Non-null storage resized and overwritten with RGBA pixels.
-/// @throws std::invalid_argument If the output pointer, extent, depth range, or
-///     input storage does not satisfy the render-conversion contract.
 /// @note Invalid, non-finite, and non-positive depths are rendered as black.
 void RenderDepthToRgba(uint2 image_extent, float depth_min_meters,
                        float depth_max_meters,
@@ -43,9 +39,6 @@ void RenderDepthToRgba(uint2 image_extent, float depth_min_meters,
 /// @param[in] depth_max_meters Depth mapped to full blue.
 /// @param[in] vertices Row-major camera-frame vertices with validity in `w`.
 /// @param[out] rgba Non-null storage resized and overwritten with RGBA pixels.
-/// @throws std::invalid_argument If the output pointer, extent, intrinsics,
-///     depth range, or input storage does not satisfy the render-conversion
-///     contract.
 /// @note Invalid, non-finite, and non-positive-z vertices are rendered as
 ///     black.
 void RenderVerticesToRgba(uint2 image_extent, float4 intrinsics,
@@ -58,8 +51,6 @@ void RenderVerticesToRgba(uint2 image_extent, float4 intrinsics,
 /// @param[in] normals Row-major normal vectors in the `[-1, 1]` component
 ///     range with validity in `w`.
 /// @param[out] rgba Non-null storage resized and overwritten with RGBA pixels.
-/// @throws std::invalid_argument If the output pointer, extent, or input
-///     storage does not satisfy the render-conversion contract.
 void RenderNormalsToRgba(uint2 image_extent,
                          const std::vector<float4>& normals,
                          std::vector<uchar4>* rgba);

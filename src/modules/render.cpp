@@ -1,44 +1,19 @@
 /// @file
 /// @brief Provides host display conversion operation definitions.
 
-#include "macro_fusion/modules/render.h"
+#include "modules/render.h"
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <stdexcept>
 
 namespace macro_fusion {
 namespace {
 
 std::size_t PixelCount(uint2 image_extent) {
-  if (image_extent.x == 0 || image_extent.y == 0) {
-    throw std::invalid_argument("image extent must be nonzero");
-  }
-  if (image_extent.x >
-      std::numeric_limits<std::size_t>::max() / image_extent.y) {
-    throw std::invalid_argument("image extent exceeds addressable storage");
-  }
   return static_cast<std::size_t>(image_extent.x) * image_extent.y;
-}
-
-void ValidateDepthRange(float depth_min_meters, float depth_max_meters) {
-  if (!std::isfinite(depth_min_meters) ||
-      !std::isfinite(depth_max_meters) || depth_min_meters < 0.0f ||
-      depth_min_meters >= depth_max_meters) {
-    throw std::invalid_argument("display depth range must be finite and ordered");
-  }
-}
-
-void ValidateIntrinsics(float4 intrinsics) {
-  if (!std::isfinite(intrinsics.x) || intrinsics.x <= 0.0f ||
-      !std::isfinite(intrinsics.y) || intrinsics.y <= 0.0f ||
-      !std::isfinite(intrinsics.z) || !std::isfinite(intrinsics.w)) {
-    throw std::invalid_argument(
-        "camera intrinsics must be finite with positive focal lengths");
-  }
 }
 
 bool IsFinite(float4 value) {
@@ -67,14 +42,7 @@ float DepthUnit(float depth, float depth_min_meters,
 
 void RenderRgbToRgba(uint2 image_extent, const std::vector<uchar3>& rgb,
                      std::vector<uchar4>* rgba) {
-  if (rgba == nullptr) {
-    throw std::invalid_argument("rgba storage must not be null");
-  }
-
   const std::size_t pixel_count = PixelCount(image_extent);
-  if (rgb.size() != pixel_count) {
-    throw std::invalid_argument("rgb storage does not match extent");
-  }
 
   rgba->resize(pixel_count);
   for (std::size_t index = 0; index < pixel_count; ++index) {
@@ -86,15 +54,7 @@ void RenderDepthToRgba(uint2 image_extent, float depth_min_meters,
                        float depth_max_meters,
                        const std::vector<float>& depth,
                        std::vector<uchar4>* rgba) {
-  if (rgba == nullptr) {
-    throw std::invalid_argument("rgba storage must not be null");
-  }
-  ValidateDepthRange(depth_min_meters, depth_max_meters);
-
   const std::size_t pixel_count = PixelCount(image_extent);
-  if (depth.size() != pixel_count) {
-    throw std::invalid_argument("depth storage does not match extent");
-  }
 
   rgba->resize(pixel_count);
   for (std::size_t index = 0; index < pixel_count; ++index) {
@@ -114,16 +74,7 @@ void RenderVerticesToRgba(uint2 image_extent, float4 intrinsics,
                           float depth_min_meters, float depth_max_meters,
                           const std::vector<float4>& vertices,
                           std::vector<uchar4>* rgba) {
-  if (rgba == nullptr) {
-    throw std::invalid_argument("rgba storage must not be null");
-  }
-  ValidateIntrinsics(intrinsics);
-  ValidateDepthRange(depth_min_meters, depth_max_meters);
-
   const std::size_t pixel_count = PixelCount(image_extent);
-  if (vertices.size() != pixel_count) {
-    throw std::invalid_argument("vertex storage does not match extent");
-  }
 
   const float max_x_pixels =
       std::max(std::abs(intrinsics.z),
@@ -159,14 +110,7 @@ void RenderVerticesToRgba(uint2 image_extent, float4 intrinsics,
 void RenderNormalsToRgba(uint2 image_extent,
                          const std::vector<float4>& normals,
                          std::vector<uchar4>* rgba) {
-  if (rgba == nullptr) {
-    throw std::invalid_argument("rgba storage must not be null");
-  }
-
   const std::size_t pixel_count = PixelCount(image_extent);
-  if (normals.size() != pixel_count) {
-    throw std::invalid_argument("normal storage does not match extent");
-  }
 
   rgba->resize(pixel_count);
   for (std::size_t index = 0; index < pixel_count; ++index) {

@@ -3,8 +3,8 @@
 /// @file
 /// @brief Declares host preprocessing operations.
 
-#include "macro_fusion/core/math_types.h"
-#include "macro_fusion/core/tracking.h"
+#include "core/math_types.cuh"
+#include "modules/tracking.h"
 
 namespace macro_fusion {
 

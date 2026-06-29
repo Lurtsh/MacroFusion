@@ -1,7 +1,7 @@
 /// @file
 /// @brief Implements the TUM host RGB-D frame source.
 
-#include "macro_fusion/modules/frame_source.h"
+#include "modules/frame_source.h"
 
 #include <algorithm>
 #include <cmath>
@@ -19,7 +19,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "macro_fusion/core/math_types.h"
+#include "core/math_types.cuh"
 
 namespace macro_fusion {
 namespace {
